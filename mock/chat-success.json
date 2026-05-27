@@ -1,0 +1,16 @@
+{
+  "trace_id": "trace-001",
+  "answer": "Q1 阶段需要打通用户提问到检索、生成答案、展示引用的完整链路 [1]。",
+  "citations": [
+    {
+      "citation_id": 1,
+      "title": "Q1 范围说明",
+      "source_url": "",
+      "doc_id": "q1_scope",
+      "chunk_id": "chunk_001",
+      "score": 0.86
+    }
+  ],
+  "status": "success"
+}
+
