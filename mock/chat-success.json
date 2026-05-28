@@ -1,16 +1,25 @@
 {
-  "trace_id": "trace-001",
-  "answer": "Q1 阶段需要打通用户提问到检索、生成答案、展示引用的完整链路 [1]。",
+  "trace_id": "trace-success-001",
+  "status": "success",
+  "answer": "Q1 阶段需要打通用户提问、调用 Agent 接口、展示答案、展示引用来源和异常状态兜底的基础链路。",
   "citations": [
     {
       "citation_id": 1,
       "title": "Q1 范围说明",
-      "source_url": "",
-      "doc_id": "q1_scope",
+      "source_url": "https://example.com/docs/q1-scope",
+      "doc_id": "doc_q1_scope",
       "chunk_id": "chunk_001",
-      "score": 0.86
+      "score": 0.86,
+      "snippet": "Q1 阶段目标是实现一轮对话的基础功能验证，包括问题输入、Agent 调用、答案展示和引用展示。"
+    },
+    {
+      "citation_id": 2,
+      "title": "Web 层职责边界",
+      "source_url": "https://example.com/docs/web-layer",
+      "doc_id": "doc_web_layer",
+      "chunk_id": "chunk_004",
+      "score": 0.79,
+      "snippet": "用户层负责 Web 交互入口，不负责检索、Prompt 组装、LLM 调用和向量存储。"
     }
-  ],
-  "status": "success"
+  ]
 }
-

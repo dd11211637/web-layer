@@ -1,0 +1,16 @@
+{
+  "trace_id": "trace-local-citation-001",
+  "status": "success",
+  "answer": "该问题的答案来自本地知识库文档。由于引用没有外部链接，页面应展示文档标题和 doc_id，而不是生成空链接。",
+  "citations": [
+    {
+      "citation_id": 1,
+      "title": "本地 Q1 需求说明",
+      "source_url": "",
+      "doc_id": "local_q1_requirement",
+      "chunk_id": "chunk_007",
+      "score": 0.82,
+      "snippet": "本地文档引用可能没有 source_url，前端需要展示 doc_id 或文档标题作为来源信息。"
+    }
+  ]
+}
