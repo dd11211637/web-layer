@@ -1,6 +1,6 @@
 <template>
   <section class="citation-list" aria-label="引用来源">
-    <CitationCard v-for="citation in citations" :key="citation.citation_id" :citation="citation" />
+    <CitationCard v-for="citation in citations" :key="citation.citationId" :citation="citation" />
   </section>
 </template>
 

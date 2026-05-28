@@ -1,4 +1,13 @@
-import type { ChatClient, ChatRequest, ChatResponse, ChatStreamEvent, ChatStatus } from "../types/chat";
+import type {
+  ChatApiResponse,
+  ChatApiStreamEvent,
+  ChatClient,
+  ChatRequest,
+  ChatResponse,
+  ChatStatus,
+  ChatStreamEvent
+} from "../types/chat";
+import { toChatResponse, toChatStreamEvent } from "../types/chat";
 
 export type MockScenario =
   | "success"
@@ -22,7 +31,7 @@ const MOCK_FILES: Record<MockScenario, string> = {
 interface MockStreamPayload {
   trace_id: string;
   status: ChatStatus;
-  events: ChatStreamEvent[];
+  events: ChatApiStreamEvent[];
 }
 
 export interface MockChatClientOptions {
@@ -91,16 +100,16 @@ export function createMockChatClient(options: MockChatClientOptions = {}): ChatC
         .join("");
       const citationsEvent = streamPayload.events.find((event) => event.event === "citations");
 
-      return {
+      return toChatResponse({
         trace_id: streamPayload.trace_id,
         status: streamPayload.status,
         answer,
         citations: citationsEvent?.event === "citations" ? citationsEvent.data : []
-      };
+      });
     }
 
     await wait(delayMs);
-    return loadJson<ChatResponse>(mockBasePath, scenario);
+    return toChatResponse(await loadJson<ChatApiResponse>(mockBasePath, scenario));
   }
 
   async function* streamChat(request: ChatRequest): AsyncGenerator<ChatStreamEvent> {
@@ -110,7 +119,7 @@ export function createMockChatClient(options: MockChatClientOptions = {}): ChatC
 
     for (const event of payload.events) {
       await wait(delayMs);
-      yield event;
+      yield toChatStreamEvent(event);
     }
   }
 

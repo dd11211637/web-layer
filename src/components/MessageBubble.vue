@@ -5,7 +5,7 @@
       <p class="content">{{ message.content }}</p>
 
       <div v-if="message.role === 'assistant'" class="message-meta">
-        <span v-if="message.trace_id">trace_id: {{ message.trace_id }}</span>
+        <span v-if="message.traceId">Trace ID: {{ message.traceId }}</span>
         <button type="button" @click="$emit('copy')">复制回答</button>
       </div>
 

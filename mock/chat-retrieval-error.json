@@ -1,6 +1,7 @@
 {
   "trace_id": "trace-retrieval-error-001",
   "status": "retrieval_error",
-  "answer": "检索服务异常，请稍后重试。",
+  "answer": "",
+  "message": "检索服务异常，请稍后重试。",
   "citations": []
 }

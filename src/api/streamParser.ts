@@ -1,11 +1,11 @@
-import type { ChatStreamEvent } from "../types/chat";
+import type { ChatApiStreamEvent } from "../types/chat";
 
 type SseField = {
   event?: string;
   data: string[];
 };
 
-function parseSseBlock(block: string): ChatStreamEvent | null {
+function parseSseBlock(block: string): ChatApiStreamEvent | null {
   const field: SseField = { data: [] };
 
   for (const rawLine of block.split(/\r?\n/)) {
@@ -35,10 +35,10 @@ function parseSseBlock(block: string): ChatStreamEvent | null {
   return {
     event: field.event,
     data: JSON.parse(field.data.join("\n"))
-  } as ChatStreamEvent;
+  } as ChatApiStreamEvent;
 }
 
-export async function* parseSseStream(stream: ReadableStream<Uint8Array>): AsyncGenerator<ChatStreamEvent> {
+export async function* parseSseStream(stream: ReadableStream<Uint8Array>): AsyncGenerator<ChatApiStreamEvent> {
   const reader = stream.getReader();
   const decoder = new TextDecoder("utf-8");
   let buffer = "";
@@ -78,7 +78,7 @@ export async function* parseSseStream(stream: ReadableStream<Uint8Array>): Async
   }
 }
 
-export function serializeMockEvents(events: ChatStreamEvent[]): string {
+export function serializeMockEvents(events: ChatApiStreamEvent[]): string {
   return events
     .map((event) => [`event: ${event.event}`, `data: ${JSON.stringify(event.data)}`].join("\n"))
     .join("\n\n");

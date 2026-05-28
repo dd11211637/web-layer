@@ -1,11 +1,11 @@
 import type { Citation } from "../types/chat";
 
 export function formatCitationLabel(citation: Citation): string {
-  return `[${citation.citation_id}] ${citation.title}`;
+  return `[${citation.citationId}] ${citation.title}`;
 }
 
 export function getCitationHref(citation: Citation): string | null {
-  const sourceUrl = citation.source_url?.trim();
+  const sourceUrl = citation.sourceUrl?.trim();
   return sourceUrl ? sourceUrl : null;
 }
 
@@ -16,7 +16,7 @@ export function formatCitationSource(citation: Citation): string {
     return href;
   }
 
-  return citation.chunk_id ? `${citation.doc_id} / ${citation.chunk_id}` : citation.doc_id;
+  return citation.chunkId ? `${citation.docId} / ${citation.chunkId}` : citation.docId;
 }
 
 export function formatCitationScore(citation: Citation): string {

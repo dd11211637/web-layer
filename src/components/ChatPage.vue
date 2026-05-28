@@ -39,10 +39,10 @@ function createId(): string {
     : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-function createMessage(partial: Omit<ChatMessage, "id" | "created_at">): ChatMessage {
+function createMessage(partial: Omit<ChatMessage, "id" | "createdAt">): ChatMessage {
   return {
     id: createId(),
-    created_at: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
     ...partial
   };
 }
@@ -51,9 +51,9 @@ function appendAssistantResponse(response: ChatResponse): void {
   messages.value.push(
     createMessage({
       role: "assistant",
-      content: response.answer,
+      content: response.answer || response.message || mapStatusToUserMessage(response.status),
       status: response.status,
-      trace_id: response.trace_id,
+      traceId: response.traceId,
       citations: response.citations
     })
   );

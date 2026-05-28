@@ -1,5 +1,6 @@
-import type { ChatClient, ChatRequest, ChatResponse, ChatStreamEvent } from "../types/chat";
+import type { ChatApiResponse, ChatClient, ChatRequest, ChatResponse, ChatStreamEvent } from "../types/chat";
 import { parseSseStream } from "./streamParser";
+import { toChatResponse, toChatStreamEvent } from "../types/chat";
 
 export interface ChatClientOptions {
   baseUrl?: string;
@@ -40,7 +41,8 @@ export function createChatClient(options: ChatClientOptions = {}): ChatClient {
       throw new Error(`Chat request failed with HTTP ${response.status}`);
     }
 
-    return response.json() as Promise<ChatResponse>;
+    const payload = (await response.json()) as ChatApiResponse;
+    return toChatResponse(payload);
   }
 
   async function* streamChat(request: ChatRequest): AsyncGenerator<ChatStreamEvent> {
@@ -66,7 +68,9 @@ export function createChatClient(options: ChatClientOptions = {}): ChatClient {
       throw new Error("Chat stream response body is empty");
     }
 
-    yield* parseSseStream(response.body);
+    for await (const event of parseSseStream(response.body)) {
+      yield toChatStreamEvent(event);
+    }
   }
 
   return {
