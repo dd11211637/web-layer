@@ -24,7 +24,7 @@ import ErrorMessage from "./ErrorMessage.vue";
 import LoadingIndicator from "./LoadingIndicator.vue";
 import MessageList from "./MessageList.vue";
 import { createMockChatClient } from "../mock/mockChatClient";
-import type { ChatMessage, ChatResponse, ChatStatus } from "../types/chat";
+import type { ChatMessage, ChatStatus } from "../types/chat";
 import { isErrorStatus, mapStatusToUserMessage } from "../utils/statusMapper";
 
 const client = createMockChatClient();
@@ -47,18 +47,6 @@ function createMessage(partial: Omit<ChatMessage, "id" | "createdAt">): ChatMess
   };
 }
 
-function appendAssistantResponse(response: ChatResponse): void {
-  messages.value.push(
-    createMessage({
-      role: "assistant",
-      content: response.answer || response.message || mapStatusToUserMessage(response.status),
-      status: response.status,
-      traceId: response.traceId,
-      citations: response.citations
-    })
-  );
-}
-
 async function handleSend(query: string): Promise<void> {
   const normalizedQuery = query.trim();
 
@@ -77,28 +65,58 @@ async function handleSend(query: string): Promise<void> {
   isLoading.value = true;
   errorMessage.value = "";
 
+  const assistantMessage = createMessage({
+    role: "assistant",
+    content: "",
+    citations: [],
+    status: "success"
+  });
+  messages.value.push(assistantMessage);
+
   try {
-    const response = await client.sendChat({
+    for await (const event of client.streamChat({
       query: normalizedQuery,
       session_id: sessionId,
-      stream: false
-    });
+      stream: true
+    })) {
+      if (event.event === "meta") {
+        assistantMessage.traceId = event.data.traceId;
+        assistantMessage.status = event.data.status;
+      }
 
-    appendAssistantResponse(response);
+      if (event.event === "token") {
+        assistantMessage.content += event.data.text;
+      }
 
-    if (isErrorStatus(response.status)) {
-      errorMessage.value = mapStatusToUserMessage(response.status);
+      if (event.event === "citations") {
+        assistantMessage.citations = event.data;
+      }
+
+      if (event.event === "error") {
+        assistantMessage.traceId = event.data.traceId;
+        assistantMessage.status = event.data.status;
+        assistantMessage.content = assistantMessage.content || event.data.message;
+        errorMessage.value = event.data.message || mapStatusToUserMessage(event.data.status);
+      }
+
+      if (event.event === "done") {
+        assistantMessage.traceId = event.data.traceId;
+        assistantMessage.status = event.data.status;
+      }
+    }
+
+    if (!assistantMessage.content.trim()) {
+      assistantMessage.content = mapStatusToUserMessage(assistantMessage.status ?? "stream_error");
+    }
+
+    if (assistantMessage.status && isErrorStatus(assistantMessage.status)) {
+      errorMessage.value = mapStatusToUserMessage(assistantMessage.status);
     }
   } catch {
     const status: ChatStatus = "network_error";
     errorMessage.value = mapStatusToUserMessage(status);
-    messages.value.push(
-      createMessage({
-        role: "assistant",
-        content: errorMessage.value,
-        status
-      })
-    );
+    assistantMessage.content = assistantMessage.content || errorMessage.value;
+    assistantMessage.status = status;
   } finally {
     isLoading.value = false;
   }

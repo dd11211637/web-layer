@@ -1,0 +1,7 @@
+{
+  "trace_id": "trace-no-context-001",
+  "status": "no_relevant_context",
+  "answer": "",
+  "message": "当前知识库没有足够信息回答该问题，请换一种问法或补充相关文档后再试。",
+  "citations": []
+}

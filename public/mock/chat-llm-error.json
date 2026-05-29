@@ -1,0 +1,7 @@
+{
+  "trace_id": "trace-llm-error-001",
+  "status": "llm_error",
+  "answer": "",
+  "message": "模型服务异常，请稍后重试。",
+  "citations": []
+}

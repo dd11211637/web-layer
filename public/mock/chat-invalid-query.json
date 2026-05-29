@@ -1,0 +1,7 @@
+{
+  "trace_id": "trace-invalid-query-001",
+  "status": "invalid_query",
+  "answer": "",
+  "message": "请输入有效问题。",
+  "citations": []
+}

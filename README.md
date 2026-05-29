@@ -128,7 +128,29 @@ web-layer/
     integration-test-record.md
 ```
 
-## 6. 接口约定摘要
+## 6. 本地运行
+
+首次拉取后安装依赖：
+
+```bash
+npm install
+```
+
+启动开发服务器：
+
+```bash
+npm run dev
+```
+
+构建检查：
+
+```bash
+npm run build
+```
+
+当前页面默认使用 Mock Client，并通过 `/mock/*.json` 读取 `public/mock/` 下的测试数据。后续联调真实 Agent 时，可以把 `ChatPage.vue` 中的 `createMockChatClient()` 替换为 `createChatClient({ baseUrl: "后端地址" })`。
+
+## 7. 接口约定摘要
 
 请求格式：
 
@@ -192,7 +214,7 @@ web-layer/
 | `timeout_error` | 请求超时 |
 | `stream_error` | 流式响应中断或解析失败 |
 
-## 7. Mock 场景
+## 8. Mock 场景
 
 Mock 数据用于支持前端独立开发和七月 Demo 演示。
 
@@ -206,7 +228,7 @@ Mock 数据用于支持前端独立开发和七月 Demo 演示。
 | `chat-invalid-query.json` | 非法输入 |
 | `chat-citation-without-url.json` | 引用无链接 |
 
-## 8. 推荐分工
+## 9. 推荐分工
 
 同学 A：页面与交互负责人
 
@@ -244,7 +266,7 @@ Mock 数据用于支持前端独立开发和七月 Demo 演示。
 - 错误响应格式；
 - Mock 数据与真实接口一致性。
 
-## 9. Git 协作方式
+## 10. Git 协作方式
 
 主分支 `main` 只保存稳定版本。每个同学在自己的功能分支开发。
 
@@ -258,7 +280,7 @@ git checkout -b docs/module1-refine
 
 开发完成后提交并推送，再通过 Pull Request 合并到 `main`。
 
-## 10. Q1 验收标准
+## 11. Q1 验收标准
 
 | 测试项 | 预期结果 |
 | --- | --- |
@@ -276,7 +298,7 @@ git checkout -b docs/module1-refine
 | 清空对话 | 聊天区恢复初始状态 |
 | 复制回答 | 成功复制答案正文 |
 
-## 11. 当前阶段优先级
+## 12. 当前阶段优先级
 
 P0：
 

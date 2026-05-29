@@ -7,7 +7,7 @@ import type {
   ChatStatus,
   ChatStreamEvent
 } from "../types/chat";
-import { toChatResponse, toChatStreamEvent } from "../types/chat";
+import { getApiResponseText, toChatResponse, toChatStreamEvent } from "../types/chat";
 
 export type MockScenario =
   | "success"
@@ -114,13 +114,68 @@ export function createMockChatClient(options: MockChatClientOptions = {}): ChatC
 
   async function* streamChat(request: ChatRequest): AsyncGenerator<ChatStreamEvent> {
     const scenario = pickScenario({ ...request, stream: true }, "stream-success");
-    const streamScenario = scenario === "stream-success" ? scenario : "stream-success";
-    const payload = await loadJson<MockStreamPayload>(mockBasePath, streamScenario);
 
-    for (const event of payload.events) {
-      await wait(delayMs);
-      yield toChatStreamEvent(event);
+    if (scenario === "stream-success") {
+      const payload = await loadJson<MockStreamPayload>(mockBasePath, scenario);
+
+      for (const event of payload.events) {
+        await wait(delayMs);
+        yield toChatStreamEvent(event);
+      }
+
+      return;
     }
+
+    const response = await loadJson<ChatApiResponse>(mockBasePath, scenario);
+    const text = getApiResponseText(response);
+
+    await wait(delayMs);
+    yield toChatStreamEvent({
+      event: "meta",
+      data: {
+        trace_id: response.trace_id,
+        status: response.status
+      }
+    });
+
+    if (text) {
+      await wait(delayMs);
+      yield toChatStreamEvent({
+        event: "token",
+        data: {
+          text
+        }
+      });
+    }
+
+    if (response.citations.length > 0) {
+      await wait(delayMs);
+      yield toChatStreamEvent({
+        event: "citations",
+        data: response.citations
+      });
+    }
+
+    if (response.status !== "success") {
+      await wait(delayMs);
+      yield toChatStreamEvent({
+        event: "error",
+        data: {
+          trace_id: response.trace_id,
+          status: response.status,
+          message: text
+        }
+      });
+    }
+
+    await wait(delayMs);
+    yield toChatStreamEvent({
+      event: "done",
+      data: {
+        trace_id: response.trace_id,
+        status: response.status
+      }
+    });
   }
 
   return {

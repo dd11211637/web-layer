@@ -1,0 +1,52 @@
+{
+  "trace_id": "trace-stream-001",
+  "status": "success",
+  "events": [
+    {
+      "event": "meta",
+      "data": {
+        "trace_id": "trace-stream-001",
+        "status": "success"
+      }
+    },
+    {
+      "event": "token",
+      "data": {
+        "text": "Q1 阶段需要打通"
+      }
+    },
+    {
+      "event": "token",
+      "data": {
+        "text": "用户提问、Agent 调用、答案展示和引用展示"
+      }
+    },
+    {
+      "event": "token",
+      "data": {
+        "text": "这条基础链路，同时保证异常状态有兜底提示。"
+      }
+    },
+    {
+      "event": "citations",
+      "data": [
+        {
+          "citation_id": 1,
+          "title": "Q1 范围说明",
+          "source_url": "https://example.com/docs/q1-scope",
+          "doc_id": "doc_q1_scope",
+          "chunk_id": "chunk_001",
+          "score": 0.86,
+          "snippet": "Q1 阶段目标是实现一轮对话的基础功能验证。"
+        }
+      ]
+    },
+    {
+      "event": "done",
+      "data": {
+        "trace_id": "trace-stream-001",
+        "status": "success"
+      }
+    }
+  ]
+}
