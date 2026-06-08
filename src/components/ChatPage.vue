@@ -12,7 +12,7 @@
       <MessageList :messages="messages" @copy="copyAnswer" />
       <ErrorMessage v-if="errorMessage" :message="errorMessage" />
       <LoadingIndicator v-if="isLoading" text="正在生成回答" />
-      <ChatInput :disabled="isLoading" @send="handleSend" />
+      <ChatInput :disabled="isLoading" @send="handleSend" @invalid="handleInvalidInput" />
     </section>
   </main>
 </template>
@@ -23,11 +23,25 @@ import ChatInput from "./ChatInput.vue";
 import ErrorMessage from "./ErrorMessage.vue";
 import LoadingIndicator from "./LoadingIndicator.vue";
 import MessageList from "./MessageList.vue";
+import { createChatClient } from "../api/chatClient";
 import { createMockChatClient } from "../mock/mockChatClient";
 import type { ChatMessage, ChatStatus } from "../types/chat";
 import { isErrorStatus, mapStatusToUserMessage } from "../utils/statusMapper";
 
-const client = createMockChatClient();
+function createConfiguredClient() {
+  const clientMode = import.meta.env.VITE_CHAT_CLIENT ?? "mock";
+
+  if (clientMode === "agent") {
+    return createChatClient({
+      baseUrl: import.meta.env.VITE_AGENT_BASE_URL ?? "",
+      timeoutMs: Number(import.meta.env.VITE_CHAT_TIMEOUT_MS ?? 30000)
+    });
+  }
+
+  return createMockChatClient();
+}
+
+const client = createConfiguredClient();
 const sessionId = "local-session-001";
 const messages = ref<ChatMessage[]>([]);
 const isLoading = ref(false);
@@ -45,6 +59,22 @@ function createMessage(partial: Omit<ChatMessage, "id" | "createdAt">): ChatMess
     createdAt: new Date().toISOString(),
     ...partial
   };
+}
+
+function handleInvalidInput(): void {
+  errorMessage.value = mapStatusToUserMessage("invalid_query");
+}
+
+function inferFailureStatus(error: unknown): ChatStatus {
+  if (error instanceof DOMException && error.name === "AbortError") {
+    return "timeout_error";
+  }
+
+  if (error instanceof SyntaxError) {
+    return "stream_error";
+  }
+
+  return "network_error";
 }
 
 async function handleSend(query: string): Promise<void> {
@@ -112,8 +142,8 @@ async function handleSend(query: string): Promise<void> {
     if (assistantMessage.status && isErrorStatus(assistantMessage.status)) {
       errorMessage.value = mapStatusToUserMessage(assistantMessage.status);
     }
-  } catch {
-    const status: ChatStatus = "network_error";
+  } catch (error) {
+    const status = inferFailureStatus(error);
     errorMessage.value = mapStatusToUserMessage(status);
     assistantMessage.content = assistantMessage.content || errorMessage.value;
     assistantMessage.status = status;

@@ -21,6 +21,7 @@ defineProps<{
 
 const emit = defineEmits<{
   send: [query: string];
+  invalid: [];
 }>();
 
 const draft = ref("");
@@ -29,6 +30,7 @@ function submit(): void {
   const query = draft.value.trim();
 
   if (!query) {
+    emit("invalid");
     return;
   }
 
